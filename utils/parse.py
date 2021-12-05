@@ -23,6 +23,9 @@ def split_str_by_newline(input: str) -> List[str]:
 def parse_all_numbers(input: str) -> List[int]:
     return [int(n) for n in re.findall(r"-?\d+", input)]
 
+def parse_matrix(input: str) -> List[List[int]]:
+    return [parse_all_numbers(l) for l in split_str_by_newline(input)]
+
 
 def parse_graph_edges(input: str) -> List[Tuple[str, str]]:
     rows = split_str_by_newline(input)
