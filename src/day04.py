@@ -5,7 +5,6 @@ import time
 from utils.fetch import fetch
 from utils.parse import (
     parse_matrix,
-    split_str_by_separator,
     parse_all_numbers,
 )
 
@@ -14,8 +13,6 @@ def mark_and_check(board, number):
     row = col = 0
     for i in range(0, 5):
         for j in range(0, 5):
-            if number == 16:
-                print(i, j, board[i][j])
             if board[i][j] == number:
                 row = i
                 col = j
@@ -43,18 +40,21 @@ def solution_1(input, boards):
 
 def solution_2(input, boards):
     for num in input:
-        for board in boards:
+        i = 0
+        while i < len(boards):
 
-            if len(boards) == 1:
-                print(num)
-                mark_and_check(board, num)
+            if mark_and_check(boards[i], num):
+                if len(boards) == 1:
+                    print(num)
+                    mark_and_check(boards[i], num)
 
-                print(board)
+                    print(boards[i])
 
-                return sum([item for row in board for item in row if item >= 0]) * num
-            print(num)
-            if mark_and_check(board, num):
-                boards.remove(board)
+                    return sum([item for row in boards[i] for item in row if item >= 0]) * num
+                # remove board from possible ones if player won
+                boards.remove(boards[i])
+            else:
+                i += 1
 
 
 def run(year: int, day: int):
