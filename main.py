@@ -6,7 +6,7 @@ from shutil import copyfile
 
 
 year = 2021
-day = 8
+day = 9
 
 
 def _pre_processing(year: int, day: int):
