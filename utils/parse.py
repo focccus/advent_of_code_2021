@@ -4,6 +4,13 @@ import re
 from typing import Dict, List, Tuple
 
 
+def parseIntMatrix(input:str):
+    return [list(map(int, l)) for l in split_str_by_newline(input)]
+
+def split_double_newline_pair(input: str):
+    s = input.split('\n\n')
+    return s[0],s[1]
+
 def split_number_by_separator(input: str, sep: str) -> List[int]:
     return [int(s) for s in input.split(sep) if s]
 

@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 from utils.fetch import fetch
-from utils.parse import split_str_by_newline
+from utils.parse import parseIntMatrix
 
 
 def increaseNeighbors(input: np.ndarray, i, j):
@@ -58,9 +58,7 @@ def run(year: int, day: int):
     print(f"\n🌟 Fetching input for {year}/{day} 🌟")
 
     input = fetch(year, day)
-    parsed_input = np.array([list(map(int, l)) for l in split_str_by_newline(input)])
-
-    print([list(map(int, l)) for l in split_str_by_newline(input)])
+    parsed_input = np.array(parseIntMatrix(input))
 
     tic = time.perf_counter()
     s1 = solution_1(copy.deepcopy(parsed_input))
