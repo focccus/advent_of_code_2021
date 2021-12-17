@@ -1,6 +1,8 @@
 """Solution module for Day X, YEAR"""
 import copy
 import time
+from functools import reduce
+from operator import mul
 
 from utils.fetch import fetch
 
@@ -55,6 +57,25 @@ class Packet:
     def computeVersionSum(self):
         return self.version + sum(sp.computeVersionSum() for sp in self.subpackets)
 
+    def eval(self):
+        if self.typeId == 4:
+            return self.literal
+        subp = [sp.eval() for sp in self.subpackets]
+        if self.typeId == 0:
+            return sum(subp)
+        if self.typeId == 1:
+            return reduce(mul, subp, 1)
+        if self.typeId == 2:
+            return min(subp)
+        if self.typeId == 3:
+            return max(subp)
+        if self.typeId == 5:
+            return 1 if subp[0] > subp[1] else 0
+        if self.typeId == 6:
+            return 1 if subp[0] < subp[1] else 0
+        if self.typeId == 7:
+            return 1 if subp[0] == subp[1] else 0
+
 
 def solution_1(input):
     binary = bin(int(input, 16))[2:].zfill(len(input) * 4)
@@ -63,7 +84,9 @@ def solution_1(input):
 
 
 def solution_2(input):
-    pass
+    binary = bin(int(input, 16))[2:].zfill(len(input) * 4)
+    p = Packet(binary)
+    return p.eval()
 
 
 def run(year: int, day: int):
