@@ -1,6 +1,7 @@
 """Solution module for Day X, YEAR"""
 import copy
 import time
+import json
 
 from utils.fetch import fetch
 from utils.parse import split_str_by_newline
@@ -133,19 +134,8 @@ def snailfishSum(numbers):
 
 
 def solution_1(input):
-    # input = [
-    #     # [[[[4,3],4],4],[7,[[8,4],9]]],
-    #     [1, 1],
-    #     [2, 2],
-    #     [3, 3],
-    #     [4, 4],
-    #     [5, 5],
-    #     [6, 6],
-    # ]
     trees = [Tree().fromArray(l) for l in input]
-    # print(trees)
     sum = snailfishSum(trees)
-    print(sum.toArray())
     return sum.magnitude()
 
 
@@ -154,7 +144,6 @@ def solution_2(input):
 
     maxMag = 0
     for t in trees:
-        # trees.remove(t)
         for tree in trees:
             if tree == t:
                 continue
@@ -168,7 +157,7 @@ def run(year: int, day: int):
     print(f"\n🌟 Fetching input for {year}/{day} 🌟")
 
     input = fetch(year, day)
-    parsed_input = [eval(l) for l in split_str_by_newline(input)]
+    parsed_input = [json.loads(l) for l in split_str_by_newline(input)]
 
     tic = time.perf_counter()
     s1 = solution_1(copy.deepcopy(parsed_input))
