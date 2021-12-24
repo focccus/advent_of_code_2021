@@ -4,6 +4,9 @@ import re
 from typing import Dict, List, Tuple
 
 
+def parseInstruction(input:str):
+    return (input[:3],input[4],input[6] if input[6] in "wxyz" else int(input[6:]))
+
 def parseIntMatrix(input:str):
     return [list(map(int, l)) for l in split_str_by_newline(input)]
 
