@@ -23,12 +23,12 @@ def volume(a):
 def overlap1DIntervals(a1, a2, b1, b2):
     c1 = c2 = 0
     if b1 <= a2 <= b2:
-        c1 = b1
+        c1 = max(a1,b1)
         c2 = a2
         a2 = c1 - 1
         b1 = c2 + 1
     elif a1 <= b2 <= a2:
-        c1 = a1
+        c1 = max(a1,b1)
         c2 = b2
         b2 = c1 - 1
         a1 = c2 + 1
@@ -36,7 +36,8 @@ def overlap1DIntervals(a1, a2, b1, b2):
     return [(a1, a2), (c1, c2), (b1, b2)]
 
 
-def overlap3DIntervals(area1, area2, subtract=False):
+# splits up two cubes into smaller pieces, last piece of second is intersection
+def overlap3DIntervals(area1, area2):
     (x11, x12, y11, y12, z11, z12) = area1
     (x21, x22, y21, y22, z21, z22) = area2
 
@@ -45,29 +46,28 @@ def overlap3DIntervals(area1, area2, subtract=False):
     zis = overlap1DIntervals(z11, z12, z21, z22)
 
     if xis[1] != (0, 0) and yis[1] != (0, 0) and zis[1] != (0, 0):
-        res = []
+        res1 = []
+        res2 = []
         # x boundary cubes
         if xis[0][0] <= xis[0][1]:
-            res.append((*xis[0], y11, y12, z11, z12))
-        if not subtract and xis[2][0] <= xis[2][1]:
-            res.append((*xis[2], y21, y22, z21, z22))
+            res1.append((*xis[0], y11, y12, z11, z12))
+        if xis[2][0] <= xis[2][1]:
+            res2.append((*xis[2], y21, y22, z21, z22))
         # y boundary cubes
         if yis[0][0] <= yis[0][1]:
-            res.append((*xis[1], *yis[0], z11, z12))
-        if not subtract and yis[2][0] <= yis[2][1]:
-            res.append((*xis[1], *yis[2], z21, z22))
+            res1.append((*xis[1], *yis[0], z11, z12))
+        if yis[2][0] <= yis[2][1]:
+            res2.append((*xis[1], *yis[2], z21, z22))
         # z boundary cubes
         if zis[0][0] <= zis[0][1]:
-            res.append((*xis[1], *yis[1], *zis[0]))
-        if not subtract:
-            if zis[2][0] <= zis[2][1]:
-                res.append((*xis[1], *yis[1], *zis[2]))
-            # intersection cube
-            res.append((*xis[1], *yis[1], *zis[1]))
-        return res
-    elif subtract:
-        return [area1]
-    return [area1, area2]
+            res1.append((*xis[1], *yis[1], *zis[0]))
+
+        if zis[2][0] <= zis[2][1]:
+            res2.append((*xis[1], *yis[1], *zis[2]))
+        # intersection cube
+        res2.append((*xis[1], *yis[1], *zis[1]))
+        return res1, res2
+    return [area1], [area2]
 
 
 def overlapArea3D(area1, area2):
@@ -113,16 +113,49 @@ def solution_1(input, limit=50):
     return np.sum(field)
 
 
-def solution_2(input):
+def translateToMcCommands(cubes,x=0,y=0,z=0):
+    blocks = [
+        "white",
+        "orange",
+        "magenta",
+        "light_blue",
+        "yellow",
+        "lime",
+        "pink",
+        "gray",
+        "light_gray",
+        "cyan",
+        "purple",
+        "blue",
+        "brown",
+        "red",
+        "black",
+    ]
+    return "\n".join(
+        [
+            f"/fill ~{x1-x} ~{y1-y} ~{z1-z} ~{x2-x} ~{y2-y} ~{z2-z} minecraft:{blocks[i % len(blocks)]}_stained_glass"
+            for i, (x1, x2, y1, y2, z1, z2) in enumerate(cubes)
+        ]
+    )
 
+
+def solution_2(input):
     on = [input[0][1]]
     for state, area in input[1:]:
+        
         oldOn = copy.deepcopy(on)
         on = []
+        toAdd = [area]
         for a in oldOn:
-            on = on + overlap3DIntervals(a, area, subtract=not state)
+            nextCubes = []
+            for subA in toAdd:
+                a1, a2 = overlap3DIntervals(a, subA)
+                on = on + a1
+                nextCubes = nextCubes + a2
+            toAdd = nextCubes
+        if state:
+            on = on + toAdd
 
-    print(overlap3DIntervals((1,1,0,1,0,1),(1,3,1,3,1,3)))
     return sum(map(volume, on))
 
 
@@ -130,8 +163,8 @@ def run(year: int, day: int):
     print(f"\n🌟 Fetching input for {year}/{day} 🌟")
 
     input = fetch(year, day)
-    input = """on x=1..1,y=1..1,z=5..5
-on x=1..3,y=2..3,z=1..5"""
+#     input = """on x=13..13,y=11..13,z=11..13
+# off x=9..11,y=9..11,z=9..11"""
     lines = split_str_by_newline(input)
     parsed_input = [(l[:2] == "on", tuple(parse_all_numbers(l[5:]))) for l in lines]
     # print(parsed_input)
