@@ -23,40 +23,78 @@ def runProgram(instr, vars={"w": 0, "x": 0, "y": 0, "z": 0,}):
     return vars["y"], vars["z"]
 
 
-# takes very long!
-def solution(digitInstr):
+def solution_1(digitInstr):
     vars = {
         "w": 0,
         "x": 0,
         "y": 0,
         "z": 0,
     }
-    outcomes = {(0, 0): ""}
+    outcomes = {0: ""}
+
     for digits in digitInstr:
         newOutcomes = {}
+        prevY = 0
+        y = 0
         for i in range(1, 10):
-            for (y, z) in outcomes:
+            for z in outcomes:
                 vars = {
                     "w": i,
                     "x": z % 26,
-                    "y": y,
+                    "y": prevY,
                     "z": z,
                 }
-                prevDigits = outcomes[(y, z)]
+                prevDigits = outcomes[z]
                 y, z = runProgram(digits, vars)
-                newOutcomes[(y, z)] = prevDigits + str(i)
+                if z < 100000:
+                    newOutcomes[z] = prevDigits + str(i)
+            prevY = y
         outcomes = newOutcomes
     max = 0
-    min = 99999999999999
     for o in outcomes:
-        if o[1] == 0:
+        if o == 0:
             num = int(outcomes[o])
             print(num)
             if num > max:
                 max = num
+    return max
+
+
+def solution_2(digitInstr):
+    vars = {
+        "w": 0,
+        "x": 0,
+        "y": 0,
+        "z": 0,
+    }
+    outcomes = {0: ""}
+
+    for digits in digitInstr:
+        newOutcomes = {}
+        prevY = 0
+        y = 0
+        for i in range(9, 0, -1):
+            for z in outcomes:
+                vars = {
+                    "w": i,
+                    "x": z % 26,
+                    "y": prevY,
+                    "z": z,
+                }
+                prevDigits = outcomes[z]
+                y, z = runProgram(digits, vars)
+                if z < 100000:
+                    newOutcomes[z] = prevDigits + str(i)
+            prevY = y
+        outcomes = newOutcomes
+    min = 99999999999999
+    for o in outcomes:
+        if o == 0:
+            num = int(outcomes[o])
+            print(num)
             if num < min:
                 min = num
-    return max, min
+    return min
 
 
 def run(year: int, day: int):
@@ -70,7 +108,10 @@ def run(year: int, day: int):
     # print(parsed_input)
 
     tic = time.perf_counter()
-    s1, s2 = solution(copy.deepcopy(parsed_input))
+    s1 = solution_1(copy.deepcopy(parsed_input))
     toc = time.perf_counter()
     print(f"Solution for problem 1: {s1}, acquired in: {toc-tic:0.4f} seconds")
+    tic = time.perf_counter()
+    s2 = solution_2(copy.deepcopy(parsed_input))
+    toc = time.perf_counter()
     print(f"Solution for problem 2: {s2}, acquired in: {toc-tic:0.4f} seconds")
